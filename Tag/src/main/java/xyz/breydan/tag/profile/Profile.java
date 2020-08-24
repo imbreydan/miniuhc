@@ -1,9 +1,8 @@
 package xyz.breydan.tag.profile;
 
 import org.bson.codecs.pojo.annotations.BsonIgnore;
-import xyz.breydan.tag.game.Game;
-
-import java.io.Serializable;
+import org.bukkit.Bukkit;
+import org.bukkit.entity.Player;
 import java.util.Objects;
 import java.util.UUID;
 
@@ -13,8 +12,6 @@ public class Profile {
     private int wins, losses, gamesPlayed;
     @BsonIgnore
     private ProfileState profileState = ProfileState.LOBBY;
-    @BsonIgnore
-    private Game game;
 
     public Profile(UUID uuid) {
         this.uuid = uuid;
@@ -48,12 +45,18 @@ public class Profile {
         this.gamesPlayed = gamesPlayed;
     }
 
+    @BsonIgnore
     public ProfileState getProfileState() {
         return profileState;
     }
 
     public void setProfileState(ProfileState profileState) {
         this.profileState = profileState;
+    }
+
+    @BsonIgnore
+    public Player getPlayer() {
+        return Bukkit.getPlayer(uuid);
     }
 
     @Override

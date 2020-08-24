@@ -1,77 +1,143 @@
 package xyz.breydan.tag.game;
 
-
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
-import xyz.breydan.tag.game.event.GameStartEvent;
+import xyz.breydan.tag.Tag;
+import xyz.breydan.tag.profile.ProfileState;
+import xyz.breydan.tag.settings.Settings;
+import xyz.breydan.tag.util.ScatterUtil;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
+import java.util.concurrent.atomic.AtomicInteger;
+
+import static xyz.breydan.tag.util.TranslateUtils.formatTime;
 
 public class Game {
 
-    private final String gameId;
-    private final List<UUID> players;
-    private List<UUID> runners = new ArrayList<>();
-    private UUID winner;
+    private GameState gameState = GameState.LOBBY;
 
-    public Game(List<UUID> players) {
-        this.gameId = new Random().nextInt(8) + "GID";
-        this.players = players;
+    private List<UUID> runners = new ArrayList<>(), hunters = new ArrayList<>();
 
-        startGame();
+    private int duration;
+    private int borderTime = 60 * Settings.BORDER_CHANGE_INTERVAL_MINS;
+    private int border = 20_000;
+
+    public int getNextBorder() {
+        switch (border) {
+            case 20_000:
+                return 10_000;
+            case 10_000:
+                return 5_000;
+            case 5_000:
+                return 2_500;
+            case 2_500:
+                return 1_000;
+            default:
+                return 500;
+        }
     }
 
-    private void startGame() {
-        Bukkit.getPluginManager().callEvent(new GameStartEvent(players, runners));
+    public String getGameStatus() {
+        switch (gameState) {
+            case PLAYING:
+                return "Playing";
+            case SCATTERING:
+                return "Scattering";
+            default:
+                return "Waiting";
+        }
     }
 
-    private void end(boolean runnersWon) {
-        
+    public int increaseDuration() {
+        return ++duration;
     }
 
-    public List<UUID> getPlayers() {
-        return players;
+    public int decreaseBorderTime() {
+        return --borderTime;
+    }
+
+    public int getBorder() {
+        return border;
+    }
+
+    public void setBorder(int border) {
+        this.border = border;
+        ScatterUtil.scatter(runners, true, false);
+        ScatterUtil.scatter(hunters, false, false);
+    }
+
+    public String getFormattedDuration() {
+        return formatTime(duration);
+    }
+
+    public String getFormattedBorderTime() {
+        return formatTime(borderTime);
+    }
+
+    public int getDuration() {
+        return duration;
+    }
+
+    public int getBorderTime() {
+        return borderTime;
+    }
+
+    public void setDuration(int duration) {
+        this.duration = duration;
+    }
+
+    public void setBorderTime(int borderTime) {
+        this.borderTime = borderTime;
+    }
+
+    public GameState getGameState() {
+        return gameState;
+    }
+
+    public void setGameState(GameState gameState) {
+        this.gameState = gameState;
+    }
+
+    public List<UUID> getAllPlayers() {
+        List<UUID> uuids = new ArrayList<>();
+        uuids.addAll(hunters);
+        uuids.addAll(runners);
+        return uuids;
     }
 
     public List<UUID> getRunners() {
         return runners;
     }
 
-    public void setRunners(List<UUID> runners) {
-        this.runners = runners;
+    public List<UUID> getHunters() {
+        return hunters;
     }
 
-    public void addRunner(UUID uuid) {
-        runners.add(uuid);
+    public void addRunner(Player player) {
+        hunters.remove(player.getUniqueId());
+        runners.add(player.getUniqueId());
     }
 
-    public String getGameId() {
-        return gameId;
+    public void addHunter(Player player) {
+        runners.remove(player.getUniqueId());
+        hunters.add(player.getUniqueId());
     }
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        Game game = (Game) o;
-        return Objects.equals(gameId, game.gameId) &&
-                Objects.equals(players, game.players) &&
-                Objects.equals(runners, game.runners) &&
-                Objects.equals(winner, game.winner);
+    public boolean allRunnersAlive() {
+        AtomicInteger alive = new AtomicInteger();
+        runners.stream().map(uuid -> Tag.getInstance().getProfileManager().getProfile(uuid)).filter(profile -> profile.getProfileState() == ProfileState.GAME).forEach(player -> {
+            alive.incrementAndGet();
+        });
+        return alive.get() == runners.size();
     }
 
-    @Override
-    public int hashCode() {
-        return Objects.hash(gameId, players, runners, winner);
+    public List<UUID> getTeam(UUID uuid) {
+        if (runners.contains(uuid))
+            return runners;
+        else
+            return hunters;
     }
 
-    @Override
-    public String toString() {
-        return "Game{" +
-                "gameId='" + gameId + '\'' +
-                ", players=" + players +
-                ", runners=" + runners +
-                ", winner=" + winner +
-                '}';
-    }
 }

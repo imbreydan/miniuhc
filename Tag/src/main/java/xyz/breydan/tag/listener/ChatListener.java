@@ -11,6 +11,6 @@ public class ChatListener implements Listener {
     @EventHandler
     public void onChat(AsyncPlayerChatEvent event) {
         String formatted = String.format(color("&b%1%s &7» &f%2%s"));
-        event.setFormat(color(formatted));
+        event.setFormat(color(formatted).replace("$lenny$", "(ಠ ʖ ಠ)"));
     }
 }

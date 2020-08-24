@@ -33,7 +33,7 @@ public class ProfileManager {
         return findByUUID(uuid)
                 .thenApply(result -> {
                     Profile profile;
-                    if (!result.isPresent()) {
+                    if (result.isEmpty()) {
                         profile = new Profile(uuid);
                         save(profile).join();
                     } else profile = result.get();
@@ -41,8 +41,8 @@ public class ProfileManager {
                 });
     }
 
-    public CompletableFuture<Void> unload(UUID uuid, boolean save) {
-        return runAsync(() -> {
+    public void unload(UUID uuid, boolean save) {
+        runAsync(() -> {
             Profile profile = profiles.remove(uuid);
             if (profile == null) return;
             if (save) save(profile);
@@ -73,5 +73,9 @@ public class ProfileManager {
 
     public Profile getProfile(UUID uuid) {
         return profiles.get(uuid);
+    }
+
+    public Map<UUID, Profile> getProfiles() {
+        return profiles;
     }
 }
