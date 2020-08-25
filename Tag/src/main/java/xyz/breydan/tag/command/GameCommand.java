@@ -55,6 +55,9 @@ public class GameCommand implements Command {
     public void stop(CommandSender sender) {
         Game game = Tag.getInstance().getGameManager().getGame();
         gameTask.cancel();
+        game.setDuration(0);
+        game.setBorder(20_000);
+        game.setBorderTime(60 * Settings.BORDER_CHANGE_INTERVAL_MINS);
         game.setGameState(GameState.FINISHED);
         for (UUID uuid : game.getAllPlayers()) {
             Player player = Bukkit.getPlayer(uuid);

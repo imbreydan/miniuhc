@@ -30,13 +30,14 @@ public class ScatterUtil {
         location.getWorld().getChunkAtAsync(location, true).thenRun(() -> {
             players.stream().map(Bukkit::getPlayer).filter(Objects::nonNull).forEach(player -> {
                 player.teleport(location);
-                player.getInventory().addItem(new ItemStack(Material.COOKED_BEEF, 16));
                 if (firstScatter) {
+                    player.getInventory().clear();
+                    player.getInventory().setItem(8, new ItemStack(Material.COOKED_BEEF, 16));
                     if (runners) {
-                        player.addPotionEffect(new PotionEffect(PotionEffectType.DAMAGE_RESISTANCE, 999999, 1));
+                        player.addPotionEffect(new PotionEffect(PotionEffectType.DAMAGE_RESISTANCE, 999999, 0));
                         player.addPotionEffect(new PotionEffect(PotionEffectType.INCREASE_DAMAGE, 999999, 1));
                     } else {
-                        player.getInventory().addItem(ItemBuilder.create(Material.COMPASS).withName("&cEnemy Tracking Compass").build());
+                        player.getInventory().setItem(7, ItemBuilder.create(Material.COMPASS).withName("&cEnemy Tracking Compass").build());
                     }
                 }
             });
@@ -53,8 +54,7 @@ public class ScatterUtil {
         Location location = new Location(world, x, world.getHighestBlockYAt(x, z) + 2, z);
 
         while (location.getBlock().getRelative(0, -2, 0).getType() == Material.LAVA
-                || location.getBlock().getRelative(0, -2, 0).getType() == Material.WATER
-                || lastScatter.distance(location) <= 350) {
+                || location.getBlock().getRelative(0, -2, 0).getType() == Material.WATER) {
             x = r.nextInt(max - min) + min;
             z = r.nextInt(max - min) + min;
             location = new Location(world, x, world.getHighestBlockYAt(x, z) + 2, z);

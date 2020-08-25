@@ -29,13 +29,9 @@ public class Game {
             case 20_000:
                 return 10_000;
             case 10_000:
-                return 5_000;
-            case 5_000:
                 return 2_500;
-            case 2_500:
-                return 1_000;
             default:
-                return 500;
+                return 2_500;
         }
     }
 
