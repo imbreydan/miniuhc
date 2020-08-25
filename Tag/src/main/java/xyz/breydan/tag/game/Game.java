@@ -2,6 +2,7 @@ package xyz.breydan.tag.game;
 
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.Inventory;
 import xyz.breydan.tag.Tag;
 import xyz.breydan.tag.profile.ProfileState;
 import xyz.breydan.tag.settings.Settings;
@@ -12,6 +13,7 @@ import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import static xyz.breydan.tag.util.TranslateUtils.color;
 import static xyz.breydan.tag.util.TranslateUtils.formatTime;
 
 public class Game {
@@ -19,6 +21,8 @@ public class Game {
     private GameState gameState = GameState.LOBBY;
 
     private List<UUID> runners = new ArrayList<>(), hunters = new ArrayList<>();
+
+    private Inventory runnerBackpack = Bukkit.createInventory(null, 27, color("&aRunners Backpack")), hunterBackpack = Bukkit.createInventory(null, 27, color("&aHunters Backpack"));
 
     private int duration;
     private int borderTime = 60 * Settings.BORDER_CHANGE_INTERVAL_MINS;
@@ -127,6 +131,14 @@ public class Game {
             alive.incrementAndGet();
         });
         return alive.get() == runners.size();
+    }
+
+    public Inventory getRunnerBackpack() {
+        return runnerBackpack;
+    }
+
+    public Inventory getHunterBackpack() {
+        return hunterBackpack;
     }
 
     public List<UUID> getTeam(UUID uuid) {

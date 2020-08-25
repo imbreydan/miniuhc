@@ -9,8 +9,7 @@ import org.bukkit.World;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Listener;
 import org.bukkit.plugin.java.JavaPlugin;
-import xyz.breydan.tag.command.GameCommand;
-import xyz.breydan.tag.command.TeamCommand;
+import xyz.breydan.tag.command.*;
 import xyz.breydan.tag.command.adapter.ProfileCommandAdapter;
 import xyz.breydan.tag.database.Mongo;
 import xyz.breydan.tag.game.Game;
@@ -49,7 +48,10 @@ public class Tag extends JavaPlugin {
         );
         registerCommands(
                 new GameCommand(),
-                new TeamCommand()
+                new TeamCommand(),
+                new TeamLocationCommand(),
+                new TeamChatCommand(),
+                new BackpackCommand()
         );
         for (Player player : Bukkit.getOnlinePlayers()) {
             player.kickPlayer(ChatColor.RED + "Tag plugin loaded, please re-log.");
