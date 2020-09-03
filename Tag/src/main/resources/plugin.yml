@@ -1,0 +1,4 @@
+name: "Tag"
+version: ${git.commit.id.abbrev}
+author: "Breydan"
+main: "xyz.breydan.tag.Tag"
